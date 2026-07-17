@@ -1,8 +1,7 @@
 # Data underlying the figures
 
 Data for the manuscript *"Density diversity in training data shapes the thermodynamic
-transferability of machine learning interatomic potentials in fluids"*
-(Kim, Kim, Jung, Ha, and Lee).
+transferability of machine learning interatomic potentials in fluids"*.
 
 All arrays are stored as compressed NumPy archives (`.npz`), readable with:
 
@@ -52,9 +51,7 @@ Files are named `{species}_{model}.npz` for species `Ar`, `CO2`, `H2O` and model
 
 ### `foundation_rdf/` — Fig. 2
 
-Files are named `{species}_{model}.npz`. `CO2_EXP.txt` and `H2O_EXP.txt` hold the
-experimental references (neutron diffraction of Cipriani et al. for CO2; X-ray
-diffraction of Skinner et al. for H2O). `CO2_EPM2.npz` is the EPM2 classical force field.
+Files are named `{species}_{model}.npz`. `CO2_EPM2.npz` is the EPM2 classical force field.
 
 | Key | Description |
 |---|---|
@@ -146,22 +143,3 @@ scripts/
     ├── run.py                                  ASE NVT MD with the distilled H2O model
     └── input.H2O.DistillationModel.yaml        SevenNet training input (distilled H2O)
 ```
-
-Figures 3 and 6 have no separate scripts: Figure 3 reuses the foundation-model
-trajectories of Figure 2, and Figure 6 is an analysis of the Figure 5 data.
-
-## Reproducing the figures
-
-The plotting notebooks live under `code/main.260706/` (main-text figures) and
-`code/SI.260711/` (Supporting Information figures). They refer to the original
-working directory layout, so the data paths need to be repointed to the
-directories above; the mapping is:
-
-| Notebook path | Directory here |
-|---|---|
-| `../../data/Fig1` | `dimer_energy/` |
-| `../../data/Fig2` | `foundation_rdf/` |
-| `../../data/Fig3` | `foundation_co2_density/` |
-| `../../data/CO2_v2` | `co2_fromscratch/` |
-| `../../data/Fig6` | `h2o_distilled_structure/` |
-| `../../data/H2O` | `h2o_distilled_dynamics/` |
