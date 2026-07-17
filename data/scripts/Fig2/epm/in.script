@@ -1,0 +1,57 @@
+variable        TEMP            equal 314                   # Kelvin
+variable        TIMESTEP        equal 0.0005                # 0.5 fs
+variable        NSTEPS          equal 2000000                 # 100,000,000 * 0.5 fs = 50 ns
+variable        THERMO_FREQ     equal 200                    # 200 * 0.5 fs = 0.025 ps
+variable        DUMP_FREQ       equal 200                    # 200 * 0.5 fs = 0.025 ps
+variable        TAU_T           equal ${TIMESTEP}*100       
+variable        TAU_P           equal ${TIMESTEP}*1000
+
+units        metal
+boundary     p p p
+atom_style   full
+
+# Read molecular structure
+read_data   in.lmps
+
+# Bond potential parameters (converted from kcal/mol to eV)
+bond_style   harmonic
+bond_coeff   1   55.67   1.149    # K=55.67 eV/Å² (was 1283.381 kcal/mol/Å²), r0=1.149 Å
+
+# Angle potential parameters (converted from kcal/mol to eV)
+# angle_style  cosine/squared
+# angle_coeff  1   6.396  180.0     # K=6.396 eV/rad² (was 147.5 kcal/mol/rad²), theta0=180°
+
+# Alternative harmonic angle:
+angle_style  harmonic
+angle_coeff  1   6.396  180.0
+
+# Pair potential parameters
+pair_style   lj/cut/coul/long  10.0   # LJ + Coulomb with 10.0 Å cutoff
+kspace_style pppm  1.0e-4             # PPPM for long-range Coulomb
+pair_modify  mix arithmetic            # Arithmetic mixing rule
+
+# LJ parameters converted to eV: epsilon (eV), sigma (Å)
+pair_coeff   1 1   0.002424  2.757    # Type 1 atoms (Carbon): was 0.055898 kcal/mol
+pair_coeff   2 2   0.006937  3.033    # Type 2 atoms (Oxygen): was 0.159984 kcal/mol
+
+
+# Atomic charges
+set type 1 charge  0.6512              # Positive charge (likely H or similar)
+set type 2 charge -0.3256              # Negative charge (likely O or similar)
+
+# Special bonds settings (exclude LJ/Coulomb for bonded atoms)
+special_bonds lj/coul 0 0 0
+
+variable        time_hr equal cpuremain/3600
+thermo          ${THERMO_FREQ}
+thermo_style    custom step v_time_hr temp press pe ke etotal density
+
+dump            dpgen_dump all custom ${DUMP_FREQ} traj.lammpstrj id type element x y z
+dump_modify     dpgen_dump sort id element C O
+
+velocity        all create ${TEMP} 29291923 mom yes rot yes dist gaussian
+fix             1 all nvt/gpu temp ${TEMP} ${TEMP} ${TAU_T}
+
+
+timestep        ${TIMESTEP}
+run             ${NSTEPS}
